@@ -17,7 +17,7 @@ p.add_argument('-s', '--ssl-ca', required=False, default='ca.crt',
 p.add_argument('-c', '--counter', required=False, default=False, action='store_true',
     help='Continusly send timestamps to kafka per second')
 
-args = p.parse_args
+args = p.parse_args()
 
 # Check if the certificate exists
 if not os.path.exists(args.ssl_ca):

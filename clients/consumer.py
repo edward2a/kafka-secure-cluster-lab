@@ -13,7 +13,7 @@ p.add_argument('-e', '--endpoint', required=False, default='localhost:9092',
 p.add_argument('-s', '--ssl-ca', required=False, default='ca.crt',
     help='The CA or self-signed certificate to trust')
 
-args = p.parse_args
+args = p.parse_args()
 
 # Check if the certificate exists
 if not os.path.exists(args.ssl_ca):
