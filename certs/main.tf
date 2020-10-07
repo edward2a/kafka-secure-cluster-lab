@@ -9,7 +9,7 @@ locals {
 
 
 module "kds_ca" {
-  source = "github.com/edward2a/tf-module-tls-certificate?ref=v0.1.0"
+  source = "github.com/edward2a/tf-module-tls-certificate?ref=v1.0"
 
   type                  = "SELF_SIGNED"
   algorithm             = "ECDSA"
@@ -36,7 +36,7 @@ module "kds_ca" {
 }
 
 module "kds" {
-  source = "github.com/edward2a/tf-module-tls-certificate?ref=v0.1.0"
+  source = "github.com/edward2a/tf-module-tls-certificate?ref=v1.0"
 
   ca_private_key_pem = module.kds_ca.private_key_pem
   ca_cert_pem        = module.kds_ca.cert_pem
