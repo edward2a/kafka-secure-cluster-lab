@@ -67,9 +67,12 @@ services:
       BROKER_ID: 1
       KAFKA_HEAP_OPTS: -Xms384M -Xmx384M
       PUBLIC_BIND: kafka1.kds.lab.rrm.local
+      HOST_BIND: 127.0.100.101
     volumes:
     - ./certs/stores:/etc/ssl/kds
     - ./config/kafka:/opt/kafka/config
+    ports:
+    - 127.0.100.101:9092:9092
 
   kafka2.kds.lab.rrm.local:
     depends_on:
@@ -92,9 +95,12 @@ services:
       BROKER_ID: 2
       KAFKA_HEAP_OPTS: -Xms384M -Xmx384M
       PUBLIC_BIND: kafka2.kds.lab.rrm.local
+      HOST_BIND: 127.0.100.102
     volumes:
     - ./certs/stores:/etc/ssl/kds
     - ./config/kafka:/opt/kafka/config
+    ports:
+    - 127.0.100.102:9092:9092
 
   kafka3.kds.lab.rrm.local:
     depends_on:
@@ -117,9 +123,12 @@ services:
       BROKER_ID: 3
       KAFKA_HEAP_OPTS: -Xms384M -Xmx384M
       PUBLIC_BIND: kafka3.kds.lab.rrm.local
+      HOST_BIND: 127.0.100.103
     volumes:
     - ./certs/stores:/etc/ssl/kds
     - ./config/kafka:/opt/kafka/config
+    ports:
+    - 127.0.100.103:9092:9092
 
   kafkalb:
     depends_on:
