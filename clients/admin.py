@@ -2,10 +2,20 @@
 
 import argparse
 import os
+from kafka import errors
 from kafka import KafkaAdminClient
+from kafka.admin import NewTopic
+from kafka.admin.config_resource import ConfigResource
 
 # Some cmdline args
 p = argparse.ArgumentParser()
+p.add_argument('-e', '--endpoint', required=False, default='localhost:9092',
+    help='The kafka endpoint for initial cluster conneciton')
+p.add_argument('-s', '--ssl-ca', required=False, default='ca.crt',
+    help='The CA or self-signed certificate to trust')
+p.add_argument('-S', '--ssl-verify', required=False, default=True, action='store_false',
+    help='Disable SSL hostname verification')
+
 s = p.add_subparsers(dest='module', required=True)
 
 # Topic and topic subparsers
@@ -61,19 +71,48 @@ acl_sub_update = acl_sub.add_parser('update')
 
 # Actions
 def topic_create(client, args):
-    print(args)
+    try:
+        return(client.create_topics([NewTopic(
+            name=args.topic,
+            num_partitions=args.partitions,
+            replication_factor=args.replication_factor)]).topic_errors[0][1]) # return error_code
+
+    except Exception as e:
+        print(err_msg, '\t{} | {}\n'.format(e.errno, e.description))
+        return(1)
 
 def topic_delete(client, args):
-    print(args)
+    try:
+        return(client.delete_topics([args.topic]).topic_error_codes[0][1])
+
+    except Exception as e:
+        print(err_msg, '\t{} | {}\n'.format(e.errno, e.description))
+        return(1)
 
 def topic_desribe(client, args):
-    print(args)
+    print(info_msg,
+        '\tNot yet implemented.\n')
+
+    r = client.describe_configs(ConfigResource('topic', args.topic))
 
 def topic_update(client, args):
-    print(args)
+    print(info_msg,
+        '\tNot yet implemented.\n')
 
 def topic_list(client, args):
-    print(args)
+    for t in client.list_topics():
+        print(t)
+
+#def topic_handle_response(obj):
+#    if obj.topic_errors[0][1] == 0:
+#        return(0)
+#    else:
+#        print('\n\t==== ERROR ====\n',
+#            '\tCode: {} | {}'.format(
+#                obj.topic_errors[0][1],     # print error_code
+#                obj.topic_errors[0][2]))    # print error_message
+#        return(1)
+
 
 # Poor man's switch
 arg_mapper = {
@@ -90,8 +129,31 @@ arg_mapper = {
     }
 }
 
+# Client config
+kafka_security = 'SASL_SSL'
+kafka_authn_type = 'PLAIN'
+kafka_authn_user = 'admin'
+kafka_authn_pass = 'admin-secret'
+
+# Other configs
+err_msg = '\n\t==== ERROR ====\n'
+info_msg = '\n\t==== INFO ====\n'
+warn_msg = '\n\t==== WARN ====\n'
+
 # Main
 args = p.parse_args()
-client = object() # temporary
-arg_mapper[args.module][args.action](client, args)
+client = KafkaAdminClient(
+    bootstrap_servers=args.endpoint,
+    security_protocol=kafka_security,
+    ssl_check_hostname=args.ssl_verify,
+    ssl_cafile=args.ssl_ca,
+    sasl_mechanism=kafka_authn_type,
+    sasl_plain_username=kafka_authn_user,
+    sasl_plain_password=kafka_authn_pass)
+
+
+r = arg_mapper[args.module][args.action](client, args)
+if r == 0:
+    print('Done!')
+exit(r)
 
